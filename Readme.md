@@ -1,5 +1,7 @@
 reflex-gadt-api
 ===============
+[![travis-ci](https://api.travis-ci.org/reflex-frp/reflex-gadt-api.svg?branch=develop)](https://travis-ci.org/reflex-frp/reflex-gadt-api)
+
 
 This package is designed to be used in full-stack Haskell applications where the API is defined as a GADT, the wire format is JSON, and the frontend is using reflex-dom(-core). reflex-gadt-api provides the basic FRP and encoding/decoding infrastructure to support this architecture.
 
