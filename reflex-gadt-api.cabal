@@ -1,0 +1,56 @@
+cabal-version:      >=1.10
+name:               reflex-gadt-api
+version:            0.1.0.0
+synopsis:
+  Interact with a JSON-serialized API defined by a GADT in your reflex-dom application.
+
+description:
+  This package is designed to be used in full-stack Haskell applications where the API is defined as a GADT and the frontend is using reflex-dom.
+
+bug-reports:        https://github.com/reflex-frp/reflex-gadt-api/issues
+license:            BSD3 
+license-file:       LICENSE
+author:             Obsidian Systems
+maintainer:         maintainer@obsidian.systems
+copyright:          2020 Obsidian Systems LLC
+category:           FRP, API, network
+build-type:         Simple
+extra-source-files:
+  ChangeLog.md
+  Readme.md
+
+tested-with:        GHC ==8.0.2 || ==8.2.2 || ==8.4.4 || ==8.6.5 || ==8.8.1
+
+library
+  hs-source-dirs:   src
+  build-depends:
+      aeson
+    , base
+    , bytestring
+    , constraints
+    , constraints-extras
+    , jsaddle
+    , reflex-dom-core
+    , text
+
+  exposed-modules:  Reflex.Dom.GadtApi
+  default-language: Haskell2010
+  ghc-options:      -Wall
+
+executable readme
+  build-depends:
+      base
+    , aeson
+    , aeson-gadt-th
+    , constraints-extras
+    , reflex-dom-core
+    , reflex-gadt-api
+    , text
+    , time
+  default-language: Haskell2010
+  main-is:          Readme.lhs
+  ghc-options:      -Wall -O2 -optL -q -main-is Readme.main
+
+source-repository head
+  type:     git
+  location: git://github.com/reflex-frp/reflex-gadt-api.git
