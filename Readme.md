@@ -181,4 +181,4 @@ On the frontend, we'll run a 'RequesterT' widget that allows us to emit an event
 > main = return ()
 ```
 
-Go to the [example](example) [directory](directory) to run this example (including the backend).
+Go to the [example](example) directory to run this example (including the backend).
