@@ -6,12 +6,15 @@ build-type: Simple
 library
   hs-source-dirs: src
   build-depends: base
+               , aeson
                , aeson-gadt-th
                , constraints-extras
                , obelisk-route
                , mtl
+               , reflex-dom-core
                , reflex-gadt-api
                , text
+               , time
   exposed-modules:
     Common.Api
     Common.Route

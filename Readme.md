@@ -49,6 +49,7 @@ Let's start with some imports and language pragmas.
 The code that follows would typically go in a common module, since it would be used on the frontend and on the backend. It sets up the basic data type definitions and a couple of GADTs that describe the API.
 
 ```haskell
+
 > data Dog = Dog
 >   { _dog_name :: Text
 >   , _dog_sighted :: UTCTime
@@ -60,11 +61,13 @@ The code that follows would typically go in a common module, since it would be u
 > instance ToJSON Dog
 > instance FromJSON Dog
 >
+
 ```
 
 Here we have an API for retrieving and interacting with the `Dog` data:
 
 ```haskell
+
 > data DogApi :: * -> * where
 >   DogApi_GetByDay :: Day -> DogApi [Dog]
 >   DogApi_GetByName :: Text -> DogApi [Dog]
@@ -78,11 +81,13 @@ Here we have an API for retrieving and interacting with the `Dog` data:
 > instance ToJSON Token
 > instance FromJSON Token
 >
+
 ```
 
 We can take the `DogApi` and embed it in another GADT API. This outer API will take handle authentication. (Note that we're not actually implementing a secure authentication scheme or anything here. This is just a toy example.)
 
 ```haskell
+
 > data CatApi a where
 >   CatApi_Identify :: Text -> CatApi (Either Text Token)
 >   CatApi_DogApi :: Token -> DogApi a -> CatApi a
@@ -92,11 +97,13 @@ We can take the `DogApi` and embed it in another GADT API. This outer API will t
 > deriveArgDict ''DogApi
 > deriveArgDict ''CatApi
 >
+
 ```
 
 On the frontend, we'll run a 'RequesterT' widget that allows us to emit an event of requests, and we'll transform those requests into XHR calls to the API endpoint.
 
 ```haskell
+
 >
 > startCatnet
 >   :: forall js t m.
@@ -179,6 +186,7 @@ On the frontend, we'll run a 'RequesterT' widget that allows us to emit an event
 >
 > main :: IO ()
 > main = return ()
+
 ```
 
 Go to the [example](example) directory to run this example (including the backend).
