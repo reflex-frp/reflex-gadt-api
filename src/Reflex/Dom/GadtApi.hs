@@ -23,7 +23,8 @@ type ApiEndpoint = Text
 -- fed back into the requester as responses. For example:
 --
 -- @
--- rec (appResult, requests) <- runRequesterT myApplication responses
+-- rec (appResult, requests) <- runRequesterT myApplication $
+--       switchPromptlyDyn responses
 --     responses <- performXhrRequests myApiEndpoint requests
 -- @
 --
