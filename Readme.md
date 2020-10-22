@@ -5,6 +5,8 @@ reflex-gadt-api
 
 This package is designed to be used in full-stack Haskell applications where the API is defined as a GADT, the wire format is JSON, and the frontend is using reflex-dom(-core). reflex-gadt-api provides the basic FRP and encoding/decoding infrastructure to support this architecture.
 
+To serialize the GADT API definition, we use [aeson-gadt-th](https://github.com/obsidiansystems/aeson-gadt-th) with a little help from [constraints-extras](https://github.com/obsidiansystems/constraints-extras).
+
 Example Usage:
 --------------
 
@@ -147,6 +149,7 @@ The `Event` of responses comes, in this case, from `Reflex.Dom.GadtApi.performXh
 >       responses <- performXhrRequests apiUrl (requests :: Event t (RequesterData CatApi))
 >   pure ()
 >   where
+
 ```
 
 Our `start` widget has the type `Catnet t m ()`, so it (and its child widgets) can potentially issue `CatApi` requests.
@@ -214,7 +217,6 @@ This function builds a UI with a few buttons. Depending on which button is click
 
 ```haskell
 
->
 > catnet
 >   :: (DomBuilder t m, MonadHold t m, MonadFix m, Prerender js t m)
 >   => Token
@@ -317,4 +319,4 @@ Once we've got those three values, we can apply them to the `DogApi_ReportSighti
 
 ```
 
-Go to the [example](example) directory to run this example (including the backend).
+Go to the [example](example) directory to run this example (including the [backend](example/backend/src/Backend.md)).
