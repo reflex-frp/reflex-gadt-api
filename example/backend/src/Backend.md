@@ -52,7 +52,7 @@ Because of the way `aeson-gadt-th` works, the parsed GADT is wrapped in the `Som
 
 `handleCatApi` produces the appropriate result type for each constructor of CatApi. For more on the `handleCatApi` function, see below.
 
-Note that we have to use `has` from `constraints-extras` to inform the compiler of the existence of a relevant `ToJSON` instance for the value wrapped by the GADT.
+Note that we have to use `has` from `constraints-extras` to inform the compiler of the existence of a `ToJSON` instance for the value type associated with the GADT constructor.
 
 ```haskell
 
