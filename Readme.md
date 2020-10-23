@@ -84,7 +84,7 @@ Here we have an API for retrieving and interacting with the `Dog` data:
 
 ```
 
-We can take the `DogApi` and embed it in another GADT API. This outer API will take handle authentication. (Note that we're not actually implementing a secure authentication scheme or anything here. This is just a toy example.)
+We can take the `DogApi` and embed it in another GADT API. This outer API will handle authentication. (Note that we're not actually implementing a secure authentication scheme or anything here. This is just a toy example.)
 
 ```haskell
 
