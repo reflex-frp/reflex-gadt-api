@@ -12,6 +12,7 @@ library
   build-depends: base
                , aeson
                , common
+               , constraints-extras
                , dependent-sum
                , frontend
                , obelisk-backend
