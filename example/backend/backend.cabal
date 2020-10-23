@@ -2,6 +2,8 @@ name: backend
 version: 0.1
 cabal-version: >= 1.8
 build-type: Simple
+extra-source-files:
+  src/Backend.md
 
 library
   hs-source-dirs: src
@@ -10,6 +12,7 @@ library
   build-depends: base
                , aeson
                , common
+               , constraints-extras
                , dependent-sum
                , frontend
                , obelisk-backend
@@ -19,7 +22,7 @@ library
                , time
   exposed-modules:
     Backend
-  ghc-options: -Wall -Wredundant-constraints -Wincomplete-uni-patterns -Wincomplete-record-updates -O
+  ghc-options: -Wall -Wredundant-constraints -Wincomplete-uni-patterns -Wincomplete-record-updates -O -optL -q
 
 executable backend
   main-is: main.hs
