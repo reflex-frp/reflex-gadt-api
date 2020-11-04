@@ -1,6 +1,7 @@
 reflex-gadt-api
 ===============
-[![travis-ci](https://api.travis-ci.org/reflex-frp/reflex-gadt-api.svg?branch=develop)](https://travis-ci.org/reflex-frp/reflex-gadt-api)
+[![Haskell](https://img.shields.io/badge/language-Haskell-orange.svg)](https://haskell.org) [![Hackage](https://img.shields.io/hackage/v/reflex-gadt-api.svg)](https://hackage.haskell.org/package/reflex-gadt-api) [![Hackage CI](https://matrix.hackage.haskell.org/api/v2/packages/reflex-gadt-api/badge)](https://matrix.hackage.haskell.org/#/package/reflex-gadt-api) [![Travis CI](https://api.travis-ci.org/reflex-frp/reflex-gadt-api.svg?branch=develop)](https://travis-ci.org/reflex-frp/reflex-gadt-api) [![BSD3 License](https://img.shields.io/badge/license-BSD3-blue.svg)](https://github.com/reflex-frp/reflex-gadt-api/blob/master/LICENSE)
+
 
 
 This package is designed to be used in full-stack Haskell applications where the API is defined as a GADT, the wire format is JSON, and the frontend is using reflex-dom(-core). reflex-gadt-api provides the basic FRP and encoding/decoding infrastructure to support this architecture.
