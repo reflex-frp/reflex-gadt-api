@@ -178,7 +178,7 @@ We're using reflex `Workflow`s to switch between pages, but we could accomplish 
 
 ```
 
-If you're building your frontend in a context where the user interface needs to be susceptible to server-side rendering (for example, if you're using Obelisk's "prerendering" functionality to serve static pages that are "hydrated" once the JS loads), you'll need to wrap any code relying on Javascript (e.g., your XHR requests) in a `prerender`. The function below does this for us.
+If you're building your frontend in a context where the user interface needs to be susceptible to server-side rendering (for example, if you're using [obelisk](https://github.com/obsidiansystems/obelisk)'s "prerendering" functionality to serve static pages that are "hydrated" once the JS loads), you'll need to wrap any code relying on Javascript (e.g., your XHR requests) in a `prerender`. The function below does this for us.
 
 ```haskell
 
