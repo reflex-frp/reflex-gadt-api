@@ -16,7 +16,6 @@ NB: As with the frontend module, this backend is just a toy example. We're speci
 > module Backend where
 >
 > import Common.Route
-> import Data.Aeson (fromJSON)
 > import Data.Constraint.Extras
 > import Control.Monad (forever)
 > import Control.Monad.IO.Class (liftIO, MonadIO)
@@ -76,12 +75,12 @@ Alternatively, if we're using websockets to connect, we handle the incoming webs
 >                 WS.Text v _ -> v
 >                 WS.Binary v -> v
 >           case m of
->             Right (TaggedRequest reqId v) -> case fromJSON v of
->               Success (Some a) -> do
->                 rsp <- handleCatApi dogs a
->                 let payload = has @ToJSON a $ Aeson.encode $ TaggedResponse reqId (toJSON rsp)
->                 WS.sendDataMessage conn $ WS.Text payload Nothing
->               Error a -> error a
+>             Right req -> do
+>               r <- mkTaggedResponse req $ handleCatApi dogs
+>               case r of
+>                 Left err -> error err
+>                 Right rsp ->
+>                   WS.sendDataMessage conn $ WS.Text (Aeson.encode rsp) Nothing
 >             Left err -> error err
 >           pure ()
 >

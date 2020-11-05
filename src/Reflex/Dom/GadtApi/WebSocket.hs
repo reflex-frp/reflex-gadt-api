@@ -2,12 +2,19 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE QuantifiedConstraints #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE RecursiveDo #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
-module Reflex.Dom.GadtApi.WebSocket where
+module Reflex.Dom.GadtApi.WebSocket
+  ( performWebSocketRequests
+  , TaggedRequest
+  , TaggedResponse
+  , mkTaggedResponse
+  , WebSocketEndpoint
+  ) where
 
 import Data.Constraint.Extras
 import Data.Constraint.Forall
@@ -52,6 +59,8 @@ performWebSocketRequests
   -> Event t (RequesterData req)
   -> m (Event t (RequesterData (Either Text)))
 performWebSocketRequests url req = fmap switchPromptlyDyn $ prerender (pure never) $ do
+  -- TODO: Pull the actual websocket out of here so that the GadtApi stuff can
+  -- exist on one channel of a multi-channel connection
   rec (matchedReq, matchedRsp) <- matchResponsesWithRequests enc req $
         ffor rsp $ \(TaggedResponse t v) -> (t, v)
       let wireReq = fmap (Map.elems . Map.mapMaybeWithKey (\t v -> case fromJSON v of
@@ -70,3 +79,14 @@ performWebSocketRequests url req = fmap switchPromptlyDyn $ prerender (pure neve
         Success s-> Right s
         Error e -> Left $ T.pack e
       )
+
+mkTaggedResponse
+  :: (Monad m, FromJSON (Some f), Has ToJSON f)
+  => TaggedRequest
+  -> (forall a. f a -> m a)
+  -> m (Either String TaggedResponse)
+mkTaggedResponse (TaggedRequest reqId v) f = case fromJSON v of
+  Success (Some a) -> do
+    rsp <- f a
+    pure $ Right $ TaggedResponse reqId (has @ToJSON a $ toJSON rsp)
+  Error err -> pure $ Left err
