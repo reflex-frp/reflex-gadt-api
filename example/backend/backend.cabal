@@ -20,6 +20,8 @@ library
                , snap-core
                , text
                , time
+               , websockets
+               , websockets-snap
   exposed-modules:
     Backend
   ghc-options: -Wall -Wredundant-constraints -Wincomplete-uni-patterns -Wincomplete-record-updates -O -optL -q
