@@ -98,9 +98,9 @@ mkTaggedResponse (TaggedRequest reqId v) f = case fromJSON v of
 --
 -- @
 --   requests  --> |-------------| --> tagged requests
---     /           |             |                 \
+--     ↗           |             |                 ↘
 -- Client          | tagRequests |                Server
---     \           |             |                 /
+--     ↖           |             |                 ↙
 --   responses <-- |-------------| <-- tagged responses
 -- @
 --
