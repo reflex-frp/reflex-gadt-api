@@ -14,8 +14,10 @@ module Reflex.Dom.GadtApi.WebSocket
   , TaggedResponse
   , mkTaggedResponse
   , WebSocketEndpoint
+  , tagRequests
   ) where
 
+import Control.Monad.Fix (MonadFix)
 import Data.Constraint.Extras
 import Data.Constraint.Forall
 import Data.Aeson
@@ -47,6 +49,15 @@ instance ToJSON TaggedResponse
 
 type WebSocketEndpoint = Text
 
+-- | Opens a websockets connection, takes the output of a 'RequesterT' widget
+-- and issues that output as API requests over the socket. The result of this
+-- function can be fed back into the requester as responses. For example:
+--
+-- @
+-- rec (appResult, requests) <- runRequesterT myApplication responses
+--     responses <- performWebSocketRequests myEndpoint requests
+-- @
+--
 performWebSocketRequests
   :: forall req js t m.
      ( Prerender js t m, Applicative m
@@ -59,27 +70,16 @@ performWebSocketRequests
   -> Event t (RequesterData req)
   -> m (Event t (RequesterData (Either Text)))
 performWebSocketRequests url req = fmap switchPromptlyDyn $ prerender (pure never) $ do
-  -- TODO: Pull the actual websocket out of here so that the GadtApi stuff can
-  -- exist on one channel of a multi-channel connection
-  rec (matchedReq, matchedRsp) <- matchResponsesWithRequests enc req $
-        ffor rsp $ \(TaggedResponse t v) -> (t, v)
-      let wireReq = fmap (Map.elems . Map.mapMaybeWithKey (\t v -> case fromJSON v of
-            Success (r :: Value) -> Just $ TaggedRequest t r
-            _ -> Nothing)) matchedReq
-      w <- webSocket url $ def
-        { _webSocketConfig_send = fmap encode <$> wireReq
+  rec w <- webSocket url $ def
+        { _webSocketConfig_send = fmap encode <$> reqs
         }
       let rsp = fmapMaybe decodeStrict $ _webSocket_recv w
-  pure matchedRsp
-  where
-    enc :: forall a. req a -> (Value, Value -> Either Text a)
-    enc r =  
-      ( whichever @ToJSON @req @a $ toJSON r
-      , \x -> case has @FromJSON r $ fromJSON x of
-        Success s-> Right s
-        Error e -> Left $ T.pack e
-      )
+      (reqs, rsps) <- tagRequests req rsp
+  pure rsps
 
+-- | Constructs a response for a given request, and handles the
+-- decoding/encoding and tagging steps internal to TaggedRequest and
+-- TaggedResponse.
 mkTaggedResponse
   :: (Monad m, FromJSON (Some f), Has ToJSON f)
   => TaggedRequest
@@ -90,3 +90,55 @@ mkTaggedResponse (TaggedRequest reqId v) f = case fromJSON v of
     rsp <- f a
     pure $ Right $ TaggedResponse reqId (has @ToJSON a $ toJSON rsp)
   Error err -> pure $ Left err
+
+-- | This function transforms a request 'Event' into an 'Event' of
+-- 'TaggedRequest's (the indexed wire format used to transmit requests). It
+-- expects to receive an 'Event' of 'TaggedResponse', the corresponding
+-- response wire format, which it will transform into an "untagged" response.
+--
+-- @
+--   requests  --> |-------------| --> tagged requests
+--     /           |             |                 \
+-- Client          | tagRequests |                Server
+--     \           |             |                 /
+--   responses <-- |-------------| <-- tagged responses
+-- @
+--
+-- This function is provided so that you can use a single websocket for
+-- multiple purposes without reimplementing the functionality of
+-- 'performWebSocketRequests'. For instance, you might have a websocket split
+-- into two "channels," one for these tagged API requests and another for data
+-- being pushed from the server.
+--
+tagRequests
+  :: forall req t m.
+     ( Applicative m
+     , FromJSON (Some req)
+     , forall a. ToJSON (req a)
+     , ForallF ToJSON req
+     , Has FromJSON req
+     , Monad m
+     , MonadFix m
+     , Reflex t
+     , MonadHold t m
+     )
+  => Event t (RequesterData req)
+  -> Event t TaggedResponse
+  -> m ( Event t [TaggedRequest]
+       , Event t (RequesterData (Either Text))
+       )
+tagRequests req rsp = do
+  rec (matchedReq, matchedRsp) <- matchResponsesWithRequests enc req $
+        ffor rsp $ \(TaggedResponse t v) -> (t, v)
+      let wireReq = fmap (Map.elems . Map.mapMaybeWithKey (\t v -> case fromJSON v of
+            Success (r :: Value) -> Just $ TaggedRequest t r
+            _ -> Nothing)) matchedReq
+  pure (wireReq, matchedRsp)
+  where
+    enc :: forall a. req a -> (Value, Value -> Either Text a)
+    enc r =
+      ( whichever @ToJSON @req @a $ toJSON r
+      , \x -> case has @FromJSON r $ fromJSON x of
+        Success s-> Right s
+        Error e -> Left $ T.pack e
+      )
