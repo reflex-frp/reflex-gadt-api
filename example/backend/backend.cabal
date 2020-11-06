@@ -17,6 +17,7 @@ library
                , frontend
                , obelisk-backend
                , obelisk-route
+               , reflex-gadt-api
                , snap-core
                , text
                , time
