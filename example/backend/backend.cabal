@@ -17,9 +17,12 @@ library
                , frontend
                , obelisk-backend
                , obelisk-route
+               , reflex-gadt-api
                , snap-core
                , text
                , time
+               , websockets
+               , websockets-snap
   exposed-modules:
     Backend
   ghc-options: -Wall -Wredundant-constraints -Wincomplete-uni-patterns -Wincomplete-record-updates -O -optL -q

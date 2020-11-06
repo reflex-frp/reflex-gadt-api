@@ -14,10 +14,11 @@ NB: As with the frontend module, this backend is just a toy example. We're speci
 > {-# LANGUAGE ScopedTypeVariables #-}
 > {-# LANGUAGE TypeApplications #-}
 > module Backend where
-> 
+>
 > import Common.Route
 > import Data.Constraint.Extras
-> import Control.Monad.IO.Class (liftIO)
+> import Control.Monad (forever)
+> import Control.Monad.IO.Class (liftIO, MonadIO)
 > import Data.Aeson as Aeson
 > import Data.IORef
 > import Data.List
@@ -28,7 +29,10 @@ NB: As with the frontend module, this backend is just a toy example. We're speci
 > import Obelisk.Route
 > import Readme
 > import Snap.Core
-> 
+> import Network.WebSockets.Snap as WS
+> import Network.WebSockets as WS
+> import Reflex.Dom.GadtApi.WebSocket
+>
 > backend :: Backend BackendRoute FrontendRoute
 > backend = Backend
 >   { _backend_run = \serve -> do
@@ -59,12 +63,33 @@ Note that we have to use `has` from `constraints-extras` to inform the compiler 
 >         Just (Some catApi) -> do
 >           response <- handleCatApi dogs catApi
 >           writeLBS $ has @ToJSON catApi $ Aeson.encode response
+>
+
+Alternatively, if we're using websockets to connect, we handle the incoming websockets messages and respond to them over that channel. The code that actually computes the response remains the same.
+
+>       BackendRoute_WebSocket :/ () -> runWebSocketsSnap $ \pc -> do
+>         conn <- WS.acceptRequest pc
+>         forever $ do
+>           dm <- WS.receiveDataMessage conn
+>           let m = eitherDecode $ case dm of
+>                 WS.Text v _ -> v
+>                 WS.Binary v -> v
+>           case m of
+>             Right req -> do
+>               r <- mkTaggedResponse req $ handleCatApi dogs
+>               case r of
+>                 Left err -> error err
+>                 Right rsp ->
+>                   WS.sendDataMessage conn $ WS.Text (Aeson.encode rsp) Nothing
+>             Left err -> error err
+>           pure ()
+>
 >       BackendRoute_Missing :/ _ -> do
 >         modifyResponse $ setResponseStatus 404 "Not Found"
 >         writeText "404 Nothing to see here."
 >   , _backend_routeEncoder = fullRouteEncoder
 >   }
-> 
+>
 
 ```
 
@@ -72,7 +97,7 @@ Note that we have to use `has` from `constraints-extras` to inform the compiler 
 
 ```haskell
 
-> handleCatApi :: IORef [Dog] -> CatApi a -> Snap a
+> handleCatApi :: MonadIO m => IORef [Dog] -> CatApi a -> m a
 > handleCatApi dogs = \case
 >   CatApi_Identify cat -> pure $ Right $ Token $ T.reverse cat
 >   CatApi_DogApi token dogApi -> do
@@ -81,13 +106,13 @@ Note that we have to use `has` from `constraints-extras` to inform the compiler 
 >       , T.reverse (unToken token)
 >       , "(Token: " <> unToken token <> ")"
 >       ]
->     let withDogs :: ([Dog] -> Snap a) -> Snap a
+>     let withDogs :: MonadIO m' => ([Dog] -> m' a) -> m' a
 >         withDogs f = do
 >           d <- liftIO $ readIORef dogs
 >           f d
 >     case dogApi of
 >       DogApi_GetLastSeen -> withDogs $ \d -> pure $
->         case sortOn _dog_sighted d of
+>         case reverse (sortOn _dog_sighted d) of
 >           (lastSeen:_) -> Just lastSeen
 >           _ -> Nothing
 >       DogApi_GetSuspiciousSightings -> withDogs $ \d -> pure $

@@ -42,7 +42,7 @@ Let's start with some imports and language pragmas.
 > import Data.Time (UTCTime, Day)
 > import GHC.Generics (Generic)
 > import Reflex.Dom.Core
-> import Reflex.Dom.GadtApi (ApiEndpoint, performXhrRequests)
+> import Reflex.Dom.GadtApi
 >
 
 ```
@@ -127,9 +127,9 @@ Now, we'll actually start up the `RequesterT`:
 >      , Has FromJSON CatApi
 >      , forall a. ToJSON (CatApi a)
 >      )
->   => ApiEndpoint
+>   => Either ApiEndpoint WebSocketEndpoint
 >   -> m ()
-> startCatnet apiUrl = do
+> startCatnet endpoint = do
 
 ```
 `runRequesterT` expects us to provide some reflex widget as its first argument (here `start`). The reflex widget is able to issue API requests, and one of the results of `runRequesterT` is an `Event` of those requests.
@@ -139,19 +139,21 @@ The second argument to `runRequesterT` is an `Event` of responses. Because we ne
 
 ```haskell
 
->   rec (_, requests) <- runRequesterT start $ switchPromptlyDyn responses
+>   rec (_, requests) <- runRequesterT start responses
 
 ```
 
-The `Event` of responses comes, in this case, from `Reflex.Dom.GadtApi.performXhrRequests`, which will take the requests emitted on the previous line and fetch responses (using XHR requests) to those requests. It produces an `Event` of responses.
-
+The `Event` of responses comes, in this case, from a functoin that will take the requests emitted on the previous line and fetch responses to those requests. It produces an `Event` of responses. We can use either `Reflex.Dom.GadtApi.XHR.performXhrRequests` if we want to send requests using XHR or `Reflex.Dom.GadtApi.WebSocket.performWebSocketRequests` to use WebSockets.
 ```haskell
 
->       responses <- performXhrRequests apiUrl (requests :: Event t (RequesterData CatApi))
+>       responses <- case endpoint of
+>         Left xhr -> performXhrRequests xhr (requests :: Event t (RequesterData CatApi))
+>         Right ws -> performWebSocketRequests ws (requests :: Event t (RequesterData CatApi))
 >   pure ()
 >   where
 
 ```
+
 
 Our `start` widget has the type `Catnet t m ()`, so it (and its child widgets) can potentially issue `CatApi` requests.
 
