@@ -1,5 +1,9 @@
 # Revision history for reflex-gadt-api
 
+## 0.2.0.1
+
+* Fix haddocks of `tagRequests`
+
 ## 0.2.0.0
 
 * Add WebSocket interface
