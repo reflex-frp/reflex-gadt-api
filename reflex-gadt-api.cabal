@@ -1,6 +1,6 @@
 cabal-version:      >=1.10
 name:               reflex-gadt-api
-version:            0.2.0.1
+version:            0.2.1.0
 synopsis:           Interact with a GADT API in your reflex-dom application.
 description:
   This package is designed to be used in full-stack Haskell applications where the API is defined as a GADT and the frontend is using reflex-dom.
