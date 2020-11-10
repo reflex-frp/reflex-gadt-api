@@ -1,6 +1,6 @@
 # Revision history for reflex-gadt-api
 
-## Unreleased
+## 0.2.1.0
 
 * Use "some" instead of "dependent-sum" package
 

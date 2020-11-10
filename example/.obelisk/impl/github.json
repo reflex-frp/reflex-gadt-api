@@ -1,8 +1,8 @@
 {
   "owner": "obsidiansystems",
   "repo": "obelisk",
-  "branch": "aa-bump-aeson-gadt-th",
+  "branch": "aa-gargoyle",
   "private": false,
-  "rev": "128f702c6bafe850df2af91b1c2b616e7c6c5acb",
-  "sha256": "1mr9z0l8xnf3bp6jgx9jklc4hiaa7gy6xa8sxb9sigxmx053yr0r"
+  "rev": "6e6b92fe73bf6951183c75507986bf8ca3228c8d",
+  "sha256": "1d47cgvz1mv1vaqfddjcsi1l26mpv99p1cxj1b4jhbk3phx20ws0"
 }
