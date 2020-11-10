@@ -1,5 +1,9 @@
 # Revision history for reflex-gadt-api
 
+## Unreleased
+
+* Use "some" instead of "dependent-sum" package
+
 ## 0.2.0.1
 
 * Fix haddocks of `tagRequests`
