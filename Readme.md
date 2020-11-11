@@ -303,7 +303,7 @@ We need to get some text for the name, a bool indicating the dog's suspiciousnes
 
 ```
 
-Once we've got those three values, we can apply them to the `DogApi_ReportSighting` constructor. We're using some infix functoins from [Control.Applicative](https://hackage.haskell.org/package/base/docs/Control-Applicative.html) to apply the constructor to `Dynamic` values, and, as a result, we get a `Dynamic` `DogApi` request. When the submit `Event` fires, we take the `current` value of that `Dynamic` and send it.
+Once we've got those three values, we can apply them to the `DogApi_ReportSighting` constructor. We're using some infix functions from [Control.Applicative](https://hackage.haskell.org/package/base/docs/Control-Applicative.html) to apply the constructor to `Dynamic` values, and, as a result, we get a `Dynamic` `DogApi` request. When the submit `Event` fires, we take the `current` value of that `Dynamic` and send it.
 
 ```haskell
 
