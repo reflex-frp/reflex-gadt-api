@@ -19,7 +19,6 @@ module Reflex.Dom.GadtApi.WebSocket
 
 import Control.Monad.Fix (MonadFix)
 import Data.Constraint.Extras
-import Data.Constraint.Forall
 import Data.Aeson
 import Data.Default
 import qualified Data.Text as T
@@ -63,7 +62,6 @@ performWebSocketRequests
      ( Prerender js t m, Applicative m
      , FromJSON (Some req)
      , forall a. ToJSON (req a)
-     , ForallF ToJSON req
      , Has FromJSON req
      )
   => WebSocketEndpoint
@@ -115,7 +113,6 @@ tagRequests
      ( Applicative m
      , FromJSON (Some req)
      , forall a. ToJSON (req a)
-     , ForallF ToJSON req
      , Has FromJSON req
      , Monad m
      , MonadFix m
@@ -137,7 +134,7 @@ tagRequests req rsp = do
   where
     enc :: forall a. req a -> (Value, Value -> Either Text a)
     enc r =
-      ( whichever @ToJSON @req @a $ toJSON r
+      ( toJSON r
       , \x -> case has @FromJSON r $ fromJSON x of
         Success s-> Right s
         Error e -> Left $ T.pack e
