@@ -1,5 +1,9 @@
 # Revision history for reflex-gadt-api
 
+## 0.2.1.1
+
+* Expose `Tagged`* constructors
+
 ## 0.2.1.0
 
 * Use "some" instead of "dependent-sum" package
