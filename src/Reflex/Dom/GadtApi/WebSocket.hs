@@ -10,8 +10,8 @@
 {-# LANGUAGE UndecidableInstances #-}
 module Reflex.Dom.GadtApi.WebSocket
   ( performWebSocketRequests
-  , TaggedRequest
-  , TaggedResponse
+  , TaggedRequest (..)
+  , TaggedResponse (..)
   , mkTaggedResponse
   , WebSocketEndpoint
   , tagRequests
