@@ -6,11 +6,12 @@
 {-# LANGUAGE TypeApplications #-}
 module Reflex.Dom.GadtApi.XHR where
 
-import Control.Concurrent (newEmptyMVar, putMVar, takeMVar)
+import Control.Concurrent (forkIO, newEmptyMVar, putMVar, takeMVar)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Data.Aeson
 import qualified Data.ByteString.Lazy as LBS
 import Data.Constraint.Extras (Has, has)
+import Data.Functor (void)
 import Data.Text (Text)
 import qualified Data.Text.Encoding as T
 import Language.Javascript.JSaddle (MonadJSM)
@@ -37,8 +38,10 @@ performXhrRequests
   => ApiEndpoint
   -> Event t (RequesterData api)
   -> m (Event t (RequesterData (Either Text)))
-performXhrRequests apiUrl req = fmap switchPromptlyDyn $ prerender (pure never) $
+performXhrRequests apiUrl req = fmap switchPromptlyDyn $ prerender (pure never) $ do
+  ctx <- askJSContext
   performEventAsync $ ffor req $ \r yield ->
+   void $ liftIO $ forkIO $ flip runWithJSContextSingleton ctx $
     liftIO . yield =<< apiRequestXhr apiUrl r
 
 -- | Encodes an API request as JSON and issues an 'XhrRequest',
