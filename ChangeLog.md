@@ -1,5 +1,9 @@
 # Revision history for reflex-gadt-api
 
+## 0.2.1.2
+
+* Support GHC 8.10
+
 ## 0.2.1.1
 
 * Expose `Tagged`* constructors

@@ -8,7 +8,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        ghc: ['8.6.5']
+        ghc: ['8.10.2', '8.8.1', '8.6.5']
         os: ['ubuntu-latest', 'macos-latest']
     steps:
     - uses: actions/checkout@v2
