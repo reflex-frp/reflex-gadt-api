@@ -143,7 +143,7 @@ The second argument to `runRequesterT` is an `Event` of responses. Because we ne
 
 ```
 
-The `Event` of responses comes, in this case, from a functoin that will take the requests emitted on the previous line and fetch responses to those requests. It produces an `Event` of responses. We can use either `Reflex.Dom.GadtApi.XHR.performXhrRequests` if we want to send requests using XHR or `Reflex.Dom.GadtApi.WebSocket.performWebSocketRequests` to use WebSockets.
+The `Event` of responses comes, in this case, from a function that will take the requests emitted on the previous line and fetch responses to those requests. It produces an `Event` of responses. We can use either `Reflex.Dom.GadtApi.XHR.performXhrRequests` if we want to send requests using XHR or `Reflex.Dom.GadtApi.WebSocket.performWebSocketRequests` to use WebSockets.
 ```haskell
 
 >       responses <- case endpoint of
