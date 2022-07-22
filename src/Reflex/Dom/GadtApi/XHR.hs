@@ -31,7 +31,7 @@ performXhrRequests
   :: forall t m api js.
      ( Has FromJSON api
      , forall a. ToJSON (api a)
-     , Prerender js t m
+     , Prerender t m
      , Applicative m
      )
   => ApiEndpoint
@@ -46,7 +46,6 @@ performXhrRequests apiUrl req = fmap switchPromptlyDyn $ prerender (pure never) 
 apiRequestXhr
   :: forall api m.
      ( MonadIO m
-     , HasJSContext m
      , MonadJSM m
      , Has FromJSON api
      , forall a. ToJSON (api a)
@@ -58,7 +57,7 @@ apiRequestXhr apiUrl = traverseRequesterData $ \x ->
   has @FromJSON @api x $ mkRequest x
   where
     mkRequest
-      :: (HasJSContext m, MonadJSM m, FromJSON b)
+      :: (MonadJSM m, FromJSON b)
       => api b
       -> m (Either Text b)
     mkRequest req = do
