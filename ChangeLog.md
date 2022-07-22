@@ -1,8 +1,9 @@
 # Revision history for reflex-gadt-api
 
-## 0.2.1.2
+## 0.2.2.0
 
 * Support GHC 8.10
+* Make xhr requests non-blocking
 
 ## 0.2.1.1
 

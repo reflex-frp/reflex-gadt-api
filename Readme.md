@@ -119,8 +119,8 @@ Now, we'll actually start up the `RequesterT`:
 ```haskell
 
 > startCatnet
->   :: forall js t m.
->      ( Prerender js t m, MonadHold t m
+>   :: forall t m.
+>      ( Prerender t m, MonadHold t m
 >      , MonadIO (Performable m), MonadFix m
 >      , DomBuilder t m, PostBuild t m
 >      , TriggerEvent t m, PerformEvent t m
@@ -185,7 +185,7 @@ If you're building your frontend in a context where the user interface needs to 
 ```haskell
 
 > requestingJs
->   :: (Reflex t, MonadFix m, Prerender js t m)
+>   :: (Reflex t, MonadFix m, Prerender t m)
 >   => Event t (Request (Client (Catnet t m)) a)
 >   -> Catnet t m (Event t (Response (Client (Catnet t m)) a))
 > requestingJs r = fmap (switch . current) $ prerender (pure never) $ requesting r
@@ -200,7 +200,7 @@ The response from the server is an `Event` that can be used to update the user i
 ```haskell
 
 > login
->   :: (DomBuilder t m, MonadHold t m, MonadFix m, Prerender js t m)
+>   :: (DomBuilder t m, MonadHold t m, MonadFix m, Prerender t m)
 >   => Catnet t m (Event t Token)
 > login = do
 >   el "h1" $ text "Identify Yourself"
@@ -221,7 +221,7 @@ This function builds a UI with a few buttons. Depending on which button is click
 ```haskell
 
 > catnet
->   :: (DomBuilder t m, MonadHold t m, MonadFix m, Prerender js t m)
+>   :: (DomBuilder t m, MonadHold t m, MonadFix m, Prerender t m)
 >   => Token
 >   -> Catnet t m (Event t ())
 > catnet token = do
@@ -275,7 +275,7 @@ This rudimentary form allows us to assemble a `Dynamic` `DogApi` request, embed 
 ```haskell
 
 > dogSighting
->   :: (DomBuilder t m, MonadHold t m, PostBuild t m, Prerender js t m, MonadFix m)
+>   :: (DomBuilder t m, MonadHold t m, PostBuild t m, Prerender t m, MonadFix m)
 >   => Token
 >   -> Catnet t m (Event t (Either Text ()))
 > dogSighting token = do
