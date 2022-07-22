@@ -58,7 +58,7 @@ type WebSocketEndpoint = Text
 -- @
 --
 performWebSocketRequests
-  :: forall req js t m.
+  :: forall req t m.
      ( Prerender t m, Applicative m
      , FromJSON (Some req)
      , forall a. ToJSON (req a)

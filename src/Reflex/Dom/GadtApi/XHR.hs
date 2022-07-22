@@ -15,6 +15,7 @@ import Data.Functor (void)
 import Data.Text (Text)
 import qualified Data.Text.Encoding as T
 import Language.Javascript.JSaddle (MonadJSM)
+import Language.Javascript.JSaddle.Monad (runJSM, askJSM)
 import Reflex.Dom.Core
 
 type ApiEndpoint = Text
@@ -29,7 +30,7 @@ type ApiEndpoint = Text
 -- @
 --
 performXhrRequests
-  :: forall t m api js.
+  :: forall t m api.
      ( Has FromJSON api
      , forall a. ToJSON (api a)
      , Prerender t m
@@ -39,10 +40,10 @@ performXhrRequests
   -> Event t (RequesterData api)
   -> m (Event t (RequesterData (Either Text)))
 performXhrRequests apiUrl req = fmap switchPromptlyDyn $ prerender (pure never) $ do
-  ctx <- askJSContext
-  performEventAsync $ ffor req $ \r yield ->
-   void $ liftIO $ forkIO $ flip runWithJSContextSingleton ctx $
-    liftIO . yield =<< apiRequestXhr apiUrl r
+  performEventAsync $ ffor req $ \r yield -> do
+    ctx <- askJSM
+    void $ liftIO $ forkIO $ flip runJSM ctx $
+      liftIO . yield =<< apiRequestXhr apiUrl r
 
 -- | Encodes an API request as JSON and issues an 'XhrRequest',
 -- and attempts to decode the response.
