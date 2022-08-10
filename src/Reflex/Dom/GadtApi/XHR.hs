@@ -40,6 +40,21 @@ performXhrRequests
   -> Event t (RequesterData api)
   -> m (Event t (RequesterData (Either Text)))
 performXhrRequests apiUrl req = fmap switchPromptlyDyn $ prerender (pure never) $ do
+  performXhrRequestsJs apiUrl req
+
+-- | Same as performXhrRequests but without running in a prerender
+performXhrRequestsJs
+  :: forall t m api.
+     ( Has FromJSON api
+     , forall a. ToJSON (api a)
+     , TriggerEvent t m
+     , PerformEvent t m
+     , MonadJSM (Performable m)
+     )
+  => ApiEndpoint
+  -> Event t (RequesterData api)
+  -> m (Event t (RequesterData (Either Text)))
+performXhrRequestsJs apiUrl req = do
   performEventAsync $ ffor req $ \r yield -> do
     ctx <- askJSM
     void $ liftIO $ forkIO $ flip runJSM ctx $
