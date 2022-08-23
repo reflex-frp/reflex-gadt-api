@@ -35,6 +35,7 @@ library
     , some                >=1      && <1.1
     , text                >=1.2    && <1.3
     , time                >=1.6.0  && <2
+    , lens                >=4.19.2
 
   exposed-modules:
     Reflex.Dom.GadtApi
