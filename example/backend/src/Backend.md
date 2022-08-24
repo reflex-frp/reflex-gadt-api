@@ -65,7 +65,11 @@ Note that we have to use `has` from `constraints-extras` to inform the compiler 
 >           writeLBS $ has @ToJSON catApi $ Aeson.encode response
 >
 
+```
+
 Alternatively, if we're using websockets to connect, we handle the incoming websockets messages and respond to them over that channel. The code that actually computes the response remains the same.
+
+```haskell
 
 >       BackendRoute_WebSocket :/ () -> runWebSocketsSnap $ \pc -> do
 >         conn <- WS.acceptRequest pc
