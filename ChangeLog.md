@@ -3,6 +3,7 @@
 ## 0.2.2.1
 
 * Support constraints-extras 0.4
+* Update obelisk version used by example
 
 ## 0.2.2.0
 

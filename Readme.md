@@ -15,6 +15,7 @@ Let's start with some imports and language pragmas.
 
 ```haskell
 
+> {-# LANGUAGE ConstraintKinds #-}
 > {-# LANGUAGE DeriveGeneric #-}
 > {-# LANGUAGE FlexibleContexts #-}
 > {-# LANGUAGE FlexibleInstances #-}
