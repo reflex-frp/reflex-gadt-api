@@ -23,4 +23,7 @@ project ./. ({ ... }: {
   packages = {
     reflex-gadt-api = ./. + "/../";
   };
+  overrides = self: super: {
+    aeson-qq = self.callHackage "aeson-qq" "0.8.4" {};
+  };
 })
