@@ -1,5 +1,9 @@
 # Revision history for reflex-gadt-api
 
+## 0.2.2.1-r1
+
+* Loosen version bounds
+
 ## 0.2.2.1
 
 * Support constraints-extras 0.4
