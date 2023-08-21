@@ -18,5 +18,4 @@ library
   exposed-modules:
     Common.Api
     Common.Route
-    Readme
   ghc-options: -Wall -Wredundant-constraints -Wincomplete-uni-patterns -Wincomplete-record-updates -O -optL -q

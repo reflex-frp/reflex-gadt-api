@@ -3,15 +3,17 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeApplications #-}
 
 module Frontend where
 
 import Data.Functor.Identity
 import Data.Text as T
-import Obelisk.Frontend
-import Obelisk.Route.Frontend
 import Obelisk.Configs
+import Obelisk.Frontend
+import Obelisk.Generated.Static
+import Obelisk.Route.Frontend
 import Reflex.Dom.Core
 
 import Common.Route
@@ -26,13 +28,14 @@ frontend :: Frontend (R FrontendRoute)
 frontend = Frontend
   { _frontend_head = do
       el "title" $ text "CatNet"
+      elAttr "link" ("rel" =: "stylesheet" <> "href" =: $(static "pico.classless.min.css")) blank
   , _frontend_body = do
       let enc :: Either Text ValidEnc = checkEncoder fullRouteEncoder
       r <- getTextConfig "common/route"
       case (enc, r) of
         (Left _, _) -> error "Routes are invalid!"
         (_, Nothing) -> error "Couldn't load common/route config file"
-        (Right validEnc, Just host) -> do
+        (Right validEnc, Just host) -> elClass "main" "container" $ do
           subRoute_ $ \case
             FrontendRoute_Main -> do
               el "h1" $ text "Choose preferred technology"

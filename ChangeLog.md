@@ -1,5 +1,9 @@
 # Revision history for reflex-gadt-api
 
+## Unreleased
+
+* Make Readme part of the library
+
 ## 0.2.2.1-r1
 
 * Loosen version bounds

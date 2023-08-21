@@ -1,5 +1,10 @@
 let ob = import ./example/.obelisk/impl {};
     pkgs = ob.reflex-platform.nixpkgs;
+    ghc = ob.reflex-platform.ghc.override {
+      overrides = self: super: {
+        aeson-qq = self.callHackage "aeson-qq" "0.8.4" {};
+      };
+    };
     srcNoSymlinks = pkgs.runCommand "deref-src" {} ''
       mkdir $out
       echo $out
@@ -15,4 +20,7 @@ let ob = import ./example/.obelisk/impl {};
       ${pkgs.rsync}/bin/rsync -arv --exclude='Readme.lhs' --exclude='default.nix' ${./example}/ $out/example/
 
     '';
-in (import (srcNoSymlinks + "/example") {}).exe
+in
+  { example = (import (srcNoSymlinks + "/example") {}).exe;
+    package = ghc.callCabal2nix "reflex-gadt-api" (builtins.fetchGit ./.) {};
+  }
