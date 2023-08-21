@@ -1,7 +1,7 @@
 reflex-gadt-api
 ===============
 
-[![Haskell](https://img.shields.io/badge/language-Haskell-orange.svg)](https://haskell.org) [![Hackage](https://img.shields.io/hackage/v/reflex-gadt-api.svg)](https://hackage.haskell.org/package/reflex-gadt-api) [![Hackage CI](https://matrix.hackage.haskell.org/api/v2/packages/reflex-gadt-api/badge)](https://matrix.hackage.haskell.org/#/package/reflex-gadt-api) [![Github CI](https://github.com/reflex-frp/reflex-gadt-api/workflows/Haskell%20CI/badge.svg)](https://github.com/reflex-frp/reflex-gadt-api/actions) [![BSD3 License](https://img.shields.io/badge/license-BSD3-blue.svg)](https://github.com/reflex-frp/reflex-gadt-api/blob/master/LICENSE)
+[![Haskell](https://img.shields.io/badge/language-Haskell-orange.svg)](https://haskell.org) [![Hackage](https://img.shields.io/hackage/v/reflex-gadt-api.svg)](https://hackage.haskell.org/package/reflex-gadt-api) [![Github CI](https://github.com/reflex-frp/reflex-gadt-api/workflows/Haskell%20CI/badge.svg)](https://github.com/reflex-frp/reflex-gadt-api/actions) [![BSD3 License](https://img.shields.io/badge/license-BSD3-blue.svg)](https://github.com/reflex-frp/reflex-gadt-api/blob/master/LICENSE)
 
 
 
