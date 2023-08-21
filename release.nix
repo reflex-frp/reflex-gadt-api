@@ -1,4 +1,7 @@
-let ob = import ./example/.obelisk/impl {};
+let systems = [ "x86_64-linux" "x86_64-darwin" ];
+    lib = (import ./example/.obelisk/impl {}).nixpkgs.lib;
+in lib.genAttrs systems (system: let
+    ob = import ./example/.obelisk/impl { inherit system; };
     pkgs = ob.reflex-platform.nixpkgs;
     ghc = ob.reflex-platform.ghc.override {
       overrides = self: super: {
@@ -20,7 +23,8 @@ let ob = import ./example/.obelisk/impl {};
       ${pkgs.rsync}/bin/rsync -arv --exclude='Readme.lhs' --exclude='default.nix' ${./example}/ $out/example/
 
     '';
-in
-  { example = (import (srcNoSymlinks + "/example") {}).exe;
-    package = ghc.callCabal2nix "reflex-gadt-api" (builtins.fetchGit ./.) {};
-  }
+  in
+    { example = (import (srcNoSymlinks + "/example") {}).exe;
+      package = ghc.callCabal2nix "reflex-gadt-api" (builtins.fetchGit ./.) {};
+      recurseForDerivations = true;
+    })
