@@ -24,11 +24,11 @@ library
   build-depends:
       aeson               >=1.4.4  && <2.3
     , aeson-gadt-th       >=0.2.4  && <0.3
-    , base                >=4.12   && <4.20
+    , base                >=4.12   && <4.21
     , bytestring          >=0.10.8 && <0.13
     , constraints-extras  >=0.3.0  && <0.5
-    , containers          >=0.6    && <0.7
-    , data-default        >=0.6    && <0.8
+    , containers          >=0.6    && <0.8
+    , data-default        >=0.6    && <0.9
     , jsaddle             >=0.9.7  && <0.10
     , reflex              >=0.7    && <1
     , reflex-dom-core     >=0.7.0  && <0.9
