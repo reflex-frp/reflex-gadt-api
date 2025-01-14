@@ -30,9 +30,9 @@ Let's start with some imports and language pragmas.
 > {-# LANGUAGE TemplateHaskell #-}
 > {-# LANGUAGE TypeFamilies #-}
 > {-# LANGUAGE UndecidableInstances #-}
->
+
 > module Readme where
->
+
 > import Control.Monad (void)
 > import Control.Monad.IO.Class (MonadIO)
 > import Control.Monad.Fix (MonadFix)
@@ -40,12 +40,13 @@ Let's start with some imports and language pragmas.
 > import Data.Aeson.GADT.TH (deriveJSONGADT)
 > import Data.Constraint.Extras (Has)
 > import Data.Constraint.Extras.TH (deriveArgDict)
+> import Data.Kind (Type)
 > import Data.Text as T (Text, null, pack)
 > import Data.Time (UTCTime, Day)
 > import GHC.Generics (Generic)
 > import Reflex.Dom.Core
 > import Reflex.Dom.GadtApi
->
+
 
 ```
 
@@ -60,10 +61,10 @@ The code that follows would typically go in a common module, since it would be u
 >   , _dog_imageUri :: Maybe Text
 >   }
 >   deriving (Generic)
->
+
 > instance ToJSON Dog
 > instance FromJSON Dog
->
+
 
 ```
 
@@ -71,19 +72,19 @@ Here we have an API for retrieving and interacting with the `Dog` data:
 
 ```haskell
 
-> data DogApi :: * -> * where
+> data DogApi :: Type -> Type where
 >   DogApi_GetByDay :: Day -> DogApi [Dog]
 >   DogApi_GetByName :: Text -> DogApi [Dog]
 >   DogApi_GetLastSeen :: DogApi (Maybe Dog)
 >   DogApi_ReportSighting :: Text -> Bool -> Maybe Text -> DogApi (Either Text ())
 >   DogApi_GetSuspiciousSightings :: DogApi [Dog]
->
+
 > newtype Token = Token { unToken :: Text }
 >   deriving (Generic)
->
+
 > instance ToJSON Token
 > instance FromJSON Token
->
+
 
 ```
 
@@ -94,12 +95,12 @@ We can take the `DogApi` and embed it in another GADT API. This outer API will h
 > data CatApi a where
 >   CatApi_Identify :: Text -> CatApi (Either Text Token)
 >   CatApi_DogApi :: Token -> DogApi a -> CatApi a
->
+
 > deriveJSONGADT ''DogApi
 > deriveJSONGADT ''CatApi
 > deriveArgDict ''DogApi
 > deriveArgDict ''CatApi
->
+
 
 ```
 
@@ -108,7 +109,7 @@ On the frontend, we'll run a `RequesterT` widget that allows us to emit an event
 ```haskell
 
 > type Catnet t m = (RequesterT t CatApi (Either Text) m)
->
+
 
 ```
 
@@ -178,7 +179,7 @@ We're using reflex `Workflow`s to switch between pages, but we could accomplish 
 >       rsp <- dogSighting token
 >       leave <- delay 3 rsp
 >       pure ((), catnetW token <$ leave) -- Go back to catnet
->
+
 
 ```
 
@@ -191,7 +192,7 @@ If you're building your frontend in a context where the user interface needs to 
 >   => Event t (Request (Client (Catnet t m)) a)
 >   -> Catnet t m (Event t (Response (Client (Catnet t m)) a))
 > requestingJs r = fmap (switch . current) $ prerender (pure never) $ requesting r
->
+
 
 ```
 
@@ -214,7 +215,7 @@ The response from the server is an `Event` that can be used to update the user i
 >         Right (Right catToken) -> Just catToken
 >         _ -> Nothing
 >   pure token
->
+
 
 ```
 
@@ -246,7 +247,7 @@ This function builds a UI with a few buttons. Depending on which button is click
 >     Right dogs -> el "ul" $ mapM_ (el "li" . showDog) dogs
 >   -- Return the "Report a sighting" click event
 >   pure addDog
->
+
 
 ```
 
@@ -268,7 +269,7 @@ The `showDog` widget below does not have `Catnet` or `RequesterT` in its type si
 >   el "dd" $ case _dog_imageUri dog of
 >     Just img -> elAttr "img" ("src" =: img <> "alt" =: "dog mugshot") blank
 >     Nothing -> text "None"
->
+
 
 ```
 
@@ -318,7 +319,7 @@ Once we've got those three values, we can apply them to the `DogApi_ReportSighti
 >     Right (Left err) -> Left err
 >     Left err -> Left err
 >     Right (Right result) -> Right result
->
+
 > main :: IO ()
 > main = return ()
 
