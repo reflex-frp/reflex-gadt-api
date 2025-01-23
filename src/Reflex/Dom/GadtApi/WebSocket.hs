@@ -22,7 +22,6 @@ import Data.Constraint.Extras
 import Data.Aeson
 import Data.Default
 import qualified Data.Text as T
-import Data.Typeable
 import GHC.Generics
 import qualified Data.Map as Map
 import Data.Some
@@ -34,14 +33,14 @@ import Reflex.Dom.WebSocket
 
 -- | A request tagged with an identifier
 data TaggedRequest = TaggedRequest Int Value
-  deriving (Typeable, Generic)
+  deriving Generic
 
 instance FromJSON TaggedRequest
 instance ToJSON TaggedRequest
 
 -- | A response tagged with an identifier matching the one in the 'TaggedRequest'. The identifier is the first argument.
 data TaggedResponse = TaggedResponse Int Value
-  deriving (Typeable, Generic)
+  deriving Generic
 
 instance FromJSON TaggedResponse
 instance ToJSON TaggedResponse
