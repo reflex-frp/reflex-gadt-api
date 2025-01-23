@@ -1,5 +1,9 @@
 # Revision history for reflex-gadt-api
 
+## 0.2.2.3
+
+* Support GHC 9.12
+
 ## 0.2.2.2
 
 * Make Readme part of the library
