@@ -2,7 +2,7 @@
 
 ## 0.3.0.0
 
-* *Breaking*: switch to a more useful xhr error response type. To retain the current behavior, you must convert `Either XhrResponse` to `Either Text`. See `Readme.lhs` for an example.
+* *Breaking*: switch to a more useful xhr error response type. To retain the current behavior, you must convert `Either XhrResponse` to `Either Text`. See `Readme.lhs` for an example using `xhrErrorToText`.
 
 ## 0.2.2.3
 
