@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -9,11 +10,10 @@ module Reflex.Dom.GadtApi.XHR where
 import Control.Concurrent (forkIO, newEmptyMVar, putMVar, takeMVar)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Data.Aeson
-import qualified Data.ByteString.Lazy as LBS
 import Data.Constraint.Extras (Has, has)
 import Data.Functor (void)
 import Data.Text (Text)
-import qualified Data.Text.Encoding as T
+import GHC.Generics
 import Language.Javascript.JSaddle (MonadJSM)
 import Language.Javascript.JSaddle.Monad (runJSM, askJSM)
 import Reflex.Dom.Core
@@ -38,12 +38,27 @@ performXhrRequests
      )
   => ApiEndpoint
   -> Event t (RequesterData api)
-  -> m (Event t (RequesterData (Either Text)))
+  -> m (Event t (RequesterData (Either XhrError)))
 performXhrRequests apiUrl req = fmap switchPromptlyDyn $ prerender (pure never) $ do
   performEventAsync $ ffor req $ \r yield -> do
     ctx <- askJSM
     void $ liftIO $ forkIO $ flip runJSM ctx $
       liftIO . yield =<< apiRequestXhr apiUrl r
+
+data XhrError = XhrError
+  { _xhrError_request :: XhrRequest Text
+  , _xhrError_response :: XhrResponse
+  }
+  deriving (Generic)
+
+xhrErrorToText :: XhrError -> Text
+xhrErrorToText e =
+  let
+    status = _xhrResponse_statusText . _xhrError_response $ e
+    rsp = _xhrResponse_responseText . _xhrError_response $ e
+  in status <> case rsp of
+      Nothing -> ""
+      Just r -> ": " <> r
 
 -- | Encodes an API request as JSON and issues an 'XhrRequest',
 -- and attempts to decode the response.
@@ -56,21 +71,19 @@ apiRequestXhr
      )
   => ApiEndpoint
   -> RequesterData api
-  -> m (RequesterData (Either Text))
+  -> m (RequesterData (Either XhrError))
 apiRequestXhr apiUrl = traverseRequesterData $ \x ->
   has @FromJSON @api x $ mkRequest x
   where
     mkRequest
       :: (MonadJSM m, FromJSON b)
       => api b
-      -> m (Either Text b)
+      -> m (Either XhrError b)
     mkRequest req = do
       response <- liftIO newEmptyMVar
-      _ <- newXMLHttpRequest (postJson apiUrl req) $
-        liftIO . putMVar response
+      let request = postJson apiUrl req
+      _ <- newXMLHttpRequest request $ liftIO . putMVar response
       xhrResp <- liftIO $ takeMVar response
       case decodeXhrResponse xhrResp of
-        Nothing -> pure $ Left $
-          "Response could not be decoded for request: " <>
-            T.decodeUtf8 (LBS.toStrict $ encode req)
+        Nothing -> pure $ Left $ XhrError request xhrResp
         Just r -> pure $ Right r

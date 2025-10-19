@@ -1,12 +1,12 @@
-cabal-version:      >=1.10
+cabal-version:      3.0
 name:               reflex-gadt-api
-version:            0.2.2.3
+version:            0.3.0.0
 synopsis:           Interact with a GADT API in your reflex-dom application.
 description:
   This package is designed to be used in full-stack Haskell applications where the API is defined as a GADT and the frontend is using reflex-dom.
 
 bug-reports:        https://github.com/reflex-frp/reflex-gadt-api/issues
-license:            BSD3
+license:            BSD-3-Clause
 license-file:       LICENSE
 author:             Obsidian Systems
 maintainer:         maintainer@obsidian.systems
@@ -17,7 +17,7 @@ extra-source-files:
   ChangeLog.md
   Readme.md
 
-tested-with:        GHC ==8.6.5 || ==8.8.4 || ==8.10.7 || ==9.0.2 || ==9.8.2 || ==9.10.1 || ==9.12.1
+tested-with:        GHC ==8.10.7 || ==9.10 || ==9.12
 
 library
   hs-source-dirs:   src, .
@@ -25,7 +25,6 @@ library
       aeson               >=1.4.4  && <2.3
     , aeson-gadt-th       >=0.2.4  && <0.3
     , base                >=4.12   && <4.22
-    , bytestring          >=0.10.8 && <0.13
     , constraints-extras  >=0.3.0  && <0.5
     , containers          >=0.6    && <0.8
     , data-default        >=0.6    && <0.9
