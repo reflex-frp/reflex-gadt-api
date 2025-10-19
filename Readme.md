@@ -161,8 +161,6 @@ The `Event` of responses comes, in this case, from a function that will take the
 >       Right a -> Right a
 >       Left x -> Left $ f x
 >
->     xhrErrorToText = _xhrResponse_statusText . _xhrError_response
->
 
 ```
 

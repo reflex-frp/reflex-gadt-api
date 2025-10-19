@@ -10,11 +10,9 @@ module Reflex.Dom.GadtApi.XHR where
 import Control.Concurrent (forkIO, newEmptyMVar, putMVar, takeMVar)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Data.Aeson
-import qualified Data.ByteString.Lazy as LBS
 import Data.Constraint.Extras (Has, has)
 import Data.Functor (void)
 import Data.Text (Text)
-import qualified Data.Text.Encoding as T
 import GHC.Generics
 import Language.Javascript.JSaddle (MonadJSM)
 import Language.Javascript.JSaddle.Monad (runJSM, askJSM)
@@ -52,6 +50,15 @@ data XhrError = XhrError
   , _xhrError_response :: XhrResponse
   }
   deriving (Generic)
+
+xhrErrorToText :: XhrError -> Text
+xhrErrorToText e =
+  let
+    status = _xhrResponse_statusText . _xhrError_response $ e
+    rsp = _xhrResponse_responseText . _xhrError_response $ e
+  in status <> case rsp of
+      Nothing -> ""
+      Just r -> ": " <> r
 
 -- | Encodes an API request as JSON and issues an 'XhrRequest',
 -- and attempts to decode the response.
