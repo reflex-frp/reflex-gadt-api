@@ -150,10 +150,19 @@ The `Event` of responses comes, in this case, from a function that will take the
 ```haskell
 
 >       responses <- case endpoint of
->         Left xhr -> performXhrRequests xhr (requests :: Event t (RequesterData CatApi))
+>         Left xhr -> do
+>           r <- performXhrRequests xhr (requests :: Event t (RequesterData CatApi))
+>           performEvent $ ffor r $ traverseRequesterData $ \x ->
+>             pure $ mapLeft xhrErrorToText x
 >         Right ws -> performWebSocketRequests ws (requests :: Event t (RequesterData CatApi))
 >   pure ()
 >   where
+>     mapLeft f = \case
+>       Right a -> Right a
+>       Left x -> Left $ f x
+>
+>     xhrErrorToText = _xhrResponse_statusText . _xhrError_response
+>
 
 ```
 
