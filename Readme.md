@@ -4,7 +4,7 @@
 
 ### Type-safe, full-stack APIs for Reflex, defined once as a GADT.
 
-Describe your API as a GADT, derive its JSON wire format, and call it from your reflex-dom frontend over XHR or WebSockets, with request and response types checked from end to end.
+Describe your API as a [GADT](https://ghc.gitlab.haskell.org/ghc/doc/users_guide/exts/gadt.html), derive its JSON wire format, and call it from your [reflex-dom](https://github.com/reflex-frp/reflex-dom) frontend over XHR or WebSockets, with request and response types checked from end to end.
 
 [![Haskell](https://img.shields.io/badge/language-Haskell-orange.svg)](https://haskell.org) [![Hackage](https://img.shields.io/hackage/v/reflex-gadt-api.svg)](https://hackage.haskell.org/package/reflex-gadt-api) [![Github CI](https://github.com/reflex-frp/reflex-gadt-api/workflows/Haskell%20CI/badge.svg)](https://github.com/reflex-frp/reflex-gadt-api/actions) [![Obsidian](https://img.shields.io/badge/Obsidian-Systems-white)](https://obsidian.systems) [![BSD3 License](https://img.shields.io/badge/license-BSD3-blue.svg)](LICENSE)
 
