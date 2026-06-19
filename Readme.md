@@ -1,13 +1,45 @@
+<div align="center">
+
 reflex-gadt-api
 ===============
 
-[![Haskell](https://img.shields.io/badge/language-Haskell-orange.svg)](https://haskell.org) [![Hackage](https://img.shields.io/hackage/v/reflex-gadt-api.svg)](https://hackage.haskell.org/package/reflex-gadt-api) [![Github CI](https://github.com/reflex-frp/reflex-gadt-api/workflows/Haskell%20CI/badge.svg)](https://github.com/reflex-frp/reflex-gadt-api/actions) [![BSD3 License](https://img.shields.io/badge/license-BSD3-blue.svg)](https://github.com/reflex-frp/reflex-gadt-api/blob/master/LICENSE)
+**Type-safe, full-stack APIs for Reflex, defined once as a GADT.**
 
+Describe your API as a [GADT](https://ghc.gitlab.haskell.org/ghc/doc/users_guide/exts/gadt.html), derive its JSON wire format, and call it from your [reflex-dom](https://github.com/reflex-frp/reflex-dom) frontend over XHR or WebSockets, with request and response types checked from end to end.
 
+[![Haskell](https://img.shields.io/badge/language-Haskell-orange.svg)](https://haskell.org) [![Hackage](https://img.shields.io/hackage/v/reflex-gadt-api.svg)](https://hackage.haskell.org/package/reflex-gadt-api) [![Github CI](https://github.com/reflex-frp/reflex-gadt-api/workflows/Haskell%20CI/badge.svg)](https://github.com/reflex-frp/reflex-gadt-api/actions) [![Obsidian](https://img.shields.io/badge/Obsidian-Systems-white)](https://obsidian.systems) [![BSD3 License](https://img.shields.io/badge/license-BSD3-blue.svg)](LICENSE)
+
+</div>
 
 This package is designed to be used in full-stack Haskell applications where the API is defined as a GADT, the wire format is JSON, and the frontend is using reflex-dom(-core). reflex-gadt-api provides the basic FRP and encoding/decoding infrastructure to support this architecture.
 
-To serialize the GADT API definition, we use [aeson-gadt-th](https://github.com/obsidiansystems/aeson-gadt-th) with a little help from [constraints-extras](https://github.com/obsidiansystems/constraints-extras).
+Why define your API as a GADT?
+------------------------------
+
+An ordinary Haskell data type can enumerate the requests an API accepts, but it can't capture what each request *returns*: every constructor of a plain `data Api = ...` has the same type, so a handler can only ever promise "some response," and the link between a particular request and its particular response type is lost.
+
+A GADT (generalized algebraic data type) removes that restriction: each constructor may fix the type parameter to a different type. We use that parameter to record each request's **response type**:
+
+    data DogApi a where
+      DogApi_GetByName :: Text -> DogApi [Dog]
+      DogApi_GetLastSeen :: DogApi (Maybe Dog)
+      DogApi_ReportSighting :: Text -> Bool -> Maybe Text -> DogApi (Either Text ())
+
+Now `DogApi_GetLastSeen` is a `DogApi (Maybe Dog)` and `DogApi_GetByName "Rex"` is a `DogApi [Dog]`: a constructor's arguments are the request, and its type index is the response. That single idea buys a lot:
+
+- **A request and its response can't drift apart.** When the backend pattern matches on a request, GHC knows the exact response type in that branch, so a handler of type `forall a. DogApi a -> m a` is checked to return the right type for every endpoint, and to handle them all. Adding an endpoint means adding a constructor, and the compiler then points you at every place that must account for it.
+- **The types are the contract, shared across the whole stack.** The API is just a datatype in a `common` library, so the *same* definition compiles into both the GHC backend and the (JavaScript) reflex-dom frontend. There is no separate schema or IDL, and no generated client to fall out of sync; client and server cannot disagree about a request's arguments or its response type, because they are the same type.
+- **Endpoints compose.** Because requests are ordinary values, one API can embed another while preserving response types. The example below nests `DogApi` inside a `CatApi` that layers on authentication: `CatApi_DogApi :: Token -> DogApi a -> CatApi a`.
+- **Responses arrive typed, not as raw JSON.** Sending `DogApi_GetLastSeen` gives you back a `Maybe Dog`, not a `Value` you have to re-parse by hand. This library automates the business of preserving that response type across JSON (de)serialization.
+
+Putting it together
+-------------------
+
+- **The GADT** defines the requests and, through its type index, their response types.
+- **Derived instances.** `deriveJSONGADT` (from [aeson-gadt-th](https://github.com/obsidiansystems/aeson-gadt-th)) derives the JSON wire format for the API, and `deriveArgDict` (from [constraints-extras](https://github.com/obsidiansystems/constraints-extras)) derives the machinery that recovers a request's `FromJSON` instance so its response can be decoded. (Once requests with different response types are mixed into a single event, that response type is existentially hidden; this is what brings it back.)
+- **A transport** carries requests to the server and feeds typed responses back into your reflex app. Two are provided: `performXhrRequests` (one HTTP request per call) and `performWebSocketRequests` (a single, multiplexed socket).
+
+The rest of this document is a literate Haskell walkthrough that builds a small example app.
 
 Example Usage:
 --------------
@@ -333,3 +365,19 @@ Once we've got those three values, we can apply them to the `DogApi_ReportSighti
 ```
 
 Go to the [example](example) directory to run this example (including the [backend](example/backend/src/Backend.md)).
+
+About Obsidian Systems
+----------------------
+
+reflex-gadt-api is built and maintained by **[Obsidian Systems](https://obsidian.systems)**. We provide frontier engineering for high-assurance systems: we build production software in Haskell and Nix, and we're long-time stewards of open-source tooling like [Obelisk](https://github.com/obsidiansystems/obelisk), [Reflex](https://reflex-frp.org/), and [nix-thunk](https://github.com/obsidiansystems/nix-thunk).
+
+If you're working with Reflex, full-stack Haskell, or Nix and want a partner to help design, build, or ship it, we'd love to hear from you.
+
+- Website: <https://obsidian.systems>
+- Blog: <https://blog.obsidian.systems>
+- GitHub: <https://github.com/obsidiansystems>
+
+License
+-------
+
+reflex-gadt-api is released under the [BSD-3-Clause License](LICENSE), © 2015 Obsidian Systems LLC.
