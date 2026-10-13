@@ -4,6 +4,7 @@
 
 * Add `Reflex.Dom.GadtApi.Codec`, exposing the pure `encodeApiRequest` and `serveApiRequest` codecs used by the transports; `serveApiRequest` gives servers a reusable untagged decode/interpret/encode step
 * Add a test suite covering request tagging and correlation (in order, out of order, and multiple requests per frame), duplicate and unknown tags, malformed payloads and frames, and the codec helpers
+* Enable `FlexibleContexts` for generated test instances, as required by the GHC 9.10 and 9.12 CI builds
 * *Breaking*: `performWebSocketRequests` takes a `WebSocketClientConfig` (URL, subprotocols, close, and reconnect) and additionally returns a `WebSocketClientStatus` exposing connection open/error/close events, unparseable incoming messages, and responses that don't match any outstanding request. Note that outstanding requests still survive disconnects and reconnects
 * *Breaking*: `tagRequests` additionally returns an event of responses whose tag matches no outstanding request; previously such responses were dropped silently
 * *Breaking*: `performXhrRequests` and `apiRequestXhr` take an `XhrClientConfig` whose `configureRequest` hook can adjust the outgoing `XhrRequest` (e.g. to add headers or credentials)
