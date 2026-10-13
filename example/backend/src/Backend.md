@@ -12,17 +12,14 @@ NB: As with the frontend module, this backend is just a toy example. We're speci
 > {-# LANGUAGE OverloadedStrings #-}
 > {-# LANGUAGE RankNTypes #-}
 > {-# LANGUAGE ScopedTypeVariables #-}
-> {-# LANGUAGE TypeApplications #-}
 > module Backend where
 >
 > import Common.Route
-> import Data.Constraint.Extras
 > import Control.Monad (forever)
 > import Control.Monad.IO.Class (liftIO, MonadIO)
 > import Data.Aeson as Aeson
 > import Data.IORef
 > import Data.List
-> import Data.Some
 > import qualified Data.Text as T
 > import Data.Time
 > import Obelisk.Backend
@@ -32,6 +29,7 @@ NB: As with the frontend module, this backend is just a toy example. We're speci
 > import Network.WebSockets.Snap as WS
 > import Network.WebSockets as WS
 > import Reflex.Dom.GadtApi.WebSocket
+> import Reflex.Dom.GadtApi.Codec (serveApiRequest)
 >
 > backend :: Backend BackendRoute FrontendRoute
 > backend = Backend
@@ -41,31 +39,24 @@ NB: As with the frontend module, this backend is just a toy example. We're speci
 
 ```
 
-In our `/api` route handler, we grab the request body and try to decode it. It should decode to a `CatApi` request.
+In our `/api` route handler, we grab the request body, try to decode it as JSON, and hand it to `serveApiRequest`. It decodes the request (rejecting anything that isn't a `CatApi` constructor), interprets it with `handleCatApi`, and encodes the response using the right `ToJSON` instance — the same decode/interpret/encode step `mkTaggedResponse` performs for the WebSocket route below.
 
 ```haskell
 
->       BackendRoute_Api :/ () -> (Aeson.decode <$> readRequestBody 16384) >>= \case
->         Nothing -> do
+>       BackendRoute_Api :/ () -> (Aeson.eitherDecode <$> readRequestBody 16384) >>= \case
+>         Left err -> do
 >           modifyResponse $ setResponseStatus 400 "Bad Request"
->           writeText "Are you sure that's what you meant?"
-
-```
-
-Because of the way `aeson-gadt-th` works, the parsed GADT is wrapped in the `Some` constructor. We can pattern match that away, and also pattern match on the actual constructors to determine which request we've received and respond appropriately.
-
-`handleCatApi` produces the appropriate result type for each constructor of CatApi. For more on the `handleCatApi` function, see below.
-
-Note that we have to use `has` from `constraints-extras` to inform the compiler of the existence of a `ToJSON` instance for the value type associated with the GADT constructor.
-
-```haskell
-
->         Just (Some catApi) -> do
->           response <- handleCatApi dogs catApi
->           writeLBS $ has @ToJSON catApi $ Aeson.encode response
+>           writeText (T.pack err)
+>         Right v -> serveApiRequest (handleCatApi dogs) v >>= \case
+>           Left err -> do
+>             modifyResponse $ setResponseStatus 400 "Bad Request"
+>             writeText (T.pack err)
+>           Right response -> writeLBS $ Aeson.encode response
 >
-
 ```
+
+`serveApiRequest` unwraps the `Some` constructor that `aeson-gadt-th` wraps the parsed GADT in, hands the request to `handleCatApi`, and recovers the `ToJSON` instance for the value type associated with the GADT constructor — so there's no need to pattern match on constructors or use `has` from `constraints-extras` by hand. For more on the `handleCatApi` function, see below.
+
 
 Alternatively, if we're using websockets to connect, we handle the incoming websockets messages and respond to them over that channel. The code that actually computes the response remains the same.
 

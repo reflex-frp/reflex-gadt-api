@@ -37,7 +37,7 @@ Putting it together
 
 - **The GADT** defines the requests and, through its type index, their response types.
 - **Derived instances.** `deriveJSONGADT` (from [aeson-gadt-th](https://github.com/obsidiansystems/aeson-gadt-th)) derives the JSON wire format for the API, and `deriveArgDict` (from [constraints-extras](https://github.com/obsidiansystems/constraints-extras)) derives the machinery that recovers a request's `FromJSON` instance so its response can be decoded. (Once requests with different response types are mixed into a single event, that response type is existentially hidden; this is what brings it back.)
-- **A transport** carries requests to the server and feeds typed responses back into your reflex app. Two are provided: `performXhrRequests` (one HTTP request per call) and `performWebSocketRequests` (a single, multiplexed socket).
+- **A transport** carries requests to the server and feeds typed responses back into your reflex app. Two are provided: `performXhrRequests` (one HTTP request per call) and `performWebSocketRequests` (a single, multiplexed socket). Each takes a configuration record — `XhrClientConfig` lets you adjust outgoing requests (for example, headers or credentials) and `WebSocketClientConfig` exposes connection knobs like subprotocols and automatic reconnection — and the WebSocket transport also returns a `WebSocketClientStatus` reporting connection lifecycle, unparseable incoming messages, and responses that match no outstanding request. On the server, `Reflex.Dom.GadtApi.Codec` provides the matching codecs and dispatcher (`encodeApiRequest`, `serveApiRequest`).
 
 The rest of this document is a literate Haskell walkthrough that builds a small example app.
 
@@ -178,15 +178,18 @@ The second argument to `runRequesterT` is an `Event` of responses. Because we ne
 
 ```
 
-The `Event` of responses comes, in this case, from a function that will take the requests emitted on the previous line and fetch responses to those requests. It produces an `Event` of responses. We can use either `Reflex.Dom.GadtApi.XHR.performXhrRequests` if we want to send requests using XHR or `Reflex.Dom.GadtApi.WebSocket.performWebSocketRequests` to use WebSockets.
+The `Event` of responses comes, in this case, from a function that will take the requests emitted on the previous line and fetch responses to those requests. It produces an `Event` of responses. We can use either `Reflex.Dom.GadtApi.XHR.performXhrRequests` if we want to send requests using XHR or `Reflex.Dom.GadtApi.WebSocket.performWebSocketRequests` to use WebSockets. Both are configured through `def`-based records; here we only set the URL. The WebSocket transport additionally returns a `WebSocketClientStatus` value, ignored in this toy example; it exposes connection lifecycle events and protocol diagnostics such as unparseable messages and responses that match no outstanding request.
 ```haskell
 
 >       responses <- case endpoint of
 >         Left xhr -> do
->           r <- performXhrRequests xhr (requests :: Event t (RequesterData CatApi))
+>           r <- performXhrRequests (def { _xhrClientConfig_url = xhr }) (requests :: Event t (RequesterData CatApi))
 >           performEvent $ ffor r $ traverseRequesterData $ \x ->
 >             pure $ mapLeft xhrErrorToText x
->         Right ws -> performWebSocketRequests ws (requests :: Event t (RequesterData CatApi))
+>         Right ws -> do
+>           (r, _status) <- performWebSocketRequests
+>             (def { _webSocketClientConfig_url = ws }) (requests :: Event t (RequesterData CatApi))
+>           pure r
 >   pure ()
 >   where
 >     mapLeft f = \case
