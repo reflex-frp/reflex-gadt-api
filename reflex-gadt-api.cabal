@@ -13,7 +13,7 @@ maintainer:         maintainer@obsidian.systems
 copyright:          2020 Obsidian Systems LLC
 category:           FRP, API, network
 build-type:         Simple
-extra-source-files:
+extra-doc-files:
   ChangeLog.md
   Readme.md
 
@@ -87,4 +87,4 @@ test-suite reflex-gadt-api-test
 
 source-repository head
   type:     git
-  location: git://github.com/reflex-frp/reflex-gadt-api.git
+  location: https://github.com/reflex-frp/reflex-gadt-api.git
