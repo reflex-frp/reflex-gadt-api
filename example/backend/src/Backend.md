@@ -24,8 +24,11 @@ NB: As with the frontend module, this backend is just a toy example. We're speci
 > import Data.Time
 > import Obelisk.Backend
 > import Obelisk.Route
+> import Paths (dataDir)
 > import Readme
 > import Snap.Core
+> import System.FilePath ((</>))
+> import qualified Frontend
 > import Network.WebSockets.Snap as WS
 > import Network.WebSockets as WS
 > import Reflex.Dom.GadtApi.WebSocket
@@ -84,6 +87,23 @@ Alternatively, if we're using websockets to connect, we handle the incoming webs
 >         writeText "404 Nothing to see here."
 >   , _backend_routeEncoder = fullRouteEncoder
 >   }
+>
+> -- | Serve the app. This is the entry point of the backend executable, so it
+> -- is what @ob-run@ relinks and restarts on each change; under @ob-repl@ it
+> -- is in scope and can be called by hand.
+> run :: IO ()
+> run = runBackendWith
+>   (defaultBackendConfig
+>     { _backendConfig_staticAssets = StaticAssets
+>         { _staticAssets_processed = dataDir </> "static.assets"
+>         , _staticAssets_unprocessed = dataDir </> "static"
+>         }
+>     , _backendConfig_frontendGhcjsAssets = StaticAssets
+>         { _staticAssets_processed = dataDir </> "frontend.jsexe.assets"
+>         , _staticAssets_unprocessed = dataDir </> "frontend.jsexe"
+>         }
+>     })
+>   backend Frontend.frontend
 >
 
 ```

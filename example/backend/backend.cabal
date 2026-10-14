@@ -1,19 +1,56 @@
-name: backend
-version: 0.1
-cabal-version: >= 1.8
-build-type: Simple
+cabal-version:      3.4
+name:               backend
+version:            0.1
+build-type:         Custom
+data-dir:           data
+data-files:         .keep
 extra-source-files:
   src/Backend.md
 
+custom-setup
+  setup-depends:
+    base >= 4.7 && < 5,
+    Cabal >= 3.0 && < 4,
+    obelisk-setup
+
+-- Which frontend the backend executable is built against. When more than one
+-- is enabled, native wins over js, and js over wasm.
+flag wasm
+  description: Build the WASM frontend (default)
+  default: True
+  manual: True
+
+flag js
+  description: Build the GHCJS frontend
+  default: False
+  manual: True
+
+flag native
+  description: Build the frontend natively, skipping cross-compilation
+  default: False
+  manual: True
+
 library
   hs-source-dirs: src
-  if impl(ghcjs)
+  default-language: Haskell2010
+  cpp-options: -DNOT_REPL
+  if arch(javascript) || arch(wasm32)
     buildable: False
+  exposed-modules:
+    Backend
+    Paths
+  other-modules:
+    Paths_backend
+  autogen-modules:
+    Paths_backend
   build-depends: base
                , aeson
                , common
                , constraints-extras
+               , directory
                , dependent-sum
+               , file-embed
+               , filepath
                , frontend
                , obelisk-backend
                , obelisk-route
@@ -23,18 +60,25 @@ library
                , time
                , websockets
                , websockets-snap
-  exposed-modules:
-    Backend
   ghc-options: -Wall -Wredundant-constraints -Wincomplete-uni-patterns -Wincomplete-record-updates -O -optL -q
 
 executable backend
-  main-is: main.hs
-  hs-source-dirs: src-bin
-  ghc-options: -Wall -Wredundant-constraints -Wincomplete-uni-patterns -Wincomplete-record-updates -O -threaded
-  if impl(ghcjs)
+  main-is: Main.hs
+  hs-source-dirs: app
+  default-language: Haskell2010
+  if arch(javascript) || arch(wasm32)
     buildable: False
+  ghc-options: -Wall -Wredundant-constraints -Wincomplete-uni-patterns -Wincomplete-record-updates -O -threaded
   build-depends: base
                , backend
                , common
                , frontend
                , obelisk-backend
+  if flag(native)
+    build-depends: frontend
+  elif flag(js)
+    build-depends: frontend-js
+  elif flag(wasm)
+    build-depends: frontend-wasm
+  else
+    build-depends: frontend

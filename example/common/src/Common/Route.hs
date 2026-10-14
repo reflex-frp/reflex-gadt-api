@@ -9,6 +9,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeFamilies #-}
 module Common.Route where
 
@@ -37,6 +38,11 @@ data FrontendRoute :: * -> * where
   FrontendRoute_UseWS :: FrontendRoute ()
   -- This type is used to define frontend routes, i.e. ones for which the backend will serve the frontend.
 
+concat <$> mapM deriveRouteComponent
+  [ ''BackendRoute
+  , ''FrontendRoute
+  ]
+
 fullRouteEncoder
   :: Encoder (Either Text) Identity (R (FullRoute BackendRoute FrontendRoute)) PageName
 fullRouteEncoder = mkFullRouteEncoder
@@ -50,7 +56,8 @@ fullRouteEncoder = mkFullRouteEncoder
       FrontendRoute_UseXhr -> PathSegment "using-xhr" $ unitEncoder mempty
       FrontendRoute_UseWS -> PathSegment "using-ws" $ unitEncoder mempty)
 
-concat <$> mapM deriveRouteComponent
-  [ ''BackendRoute
-  , ''FrontendRoute
-  ]
+checkedFullRouteEncoder
+  :: Encoder Identity Identity (R (FullRoute BackendRoute FrontendRoute)) PageName
+checkedFullRouteEncoder = case checkEncoder fullRouteEncoder of
+  Left e -> error (show e)
+  Right enc -> enc

@@ -22,12 +22,12 @@ tested-with:        GHC ==8.10.7 || ==9.10 || ==9.12
 library
   hs-source-dirs:   src, .
   build-depends:
-      aeson               >=1.4.4  && <2.3
+      aeson               >=1.4.4  && <2.4
     , aeson-gadt-th       >=0.2.4  && <0.3
-    , base                >=4.12   && <4.22
+    , base                >=4.12   && <4.23
     , bytestring         >=0.10   && <0.13
     , constraints-extras  >=0.3.0  && <0.5
-    , containers          >=0.6    && <0.8
+    , containers          >=0.6    && <0.9
     , data-default        >=0.6    && <0.9
     , jsaddle             >=0.9.7  && <0.10
     , reflex              >=0.7    && <1
@@ -72,9 +72,9 @@ test-suite reflex-gadt-api-test
   main-is:            Main.hs
   hs-source-dirs:     test
   build-depends:
-      aeson               >=1.4.4  && <2.3
+      aeson               >=1.4.4  && <2.4
     , aeson-gadt-th       >=0.2.4  && <0.3
-    , base                >=4.12   && <4.22
+    , base                >=4.12   && <4.23
     , constraints-extras  >=0.3.0  && <0.5
     , bytestring         >=0.10   && <0.13
     , hspec               >=2.8    && <2.12

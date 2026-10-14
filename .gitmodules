@@ -1,0 +1,3 @@
+[submodule "example/deps/obelisk"]
+	path = example/deps/obelisk
+	url = https://github.com/obsidiansystems/obelisk.git
